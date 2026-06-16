@@ -3,8 +3,6 @@
  * Splitflix — AvaliacaoController
  */
 
-
-
 require_once BASE_PATH . '/models/ExtraModels.php';
 use Helpers\Response;
 use Helpers\Sanitizer;
@@ -13,7 +11,7 @@ use Middleware\AuthMiddleware;
 class AvaliacaoController
 {
     // GET /avaliacoes/{tipo}/{id}
-    public static function index(string $tipo, string $id
+    public static function index(string $tipo, string $id)
     {
         $model  = new AvaliacaoModel();
         $stats  = $model->stats($tipo, (int)$id);
@@ -28,7 +26,7 @@ class AvaliacaoController
     }
 
     // POST /avaliacoes
-    public static function store(
+    public static function store()
     {
         $user  = AuthMiddleware::require();
         $body  = Sanitizer::jsonBody();
@@ -66,7 +64,6 @@ class BuscaController
         $animes  = (new AnimeModel())->search($q, $limit);
 
         $all = array_merge($filmes, $series, $animes);
-        // Ordena por relevância simples (nota decrescente)
         usort($all, fn($a,$b) => ($b['nota_imdb'] ?? 0) <=> ($a['nota_imdb'] ?? 0));
 
         Response::success([
@@ -78,7 +75,7 @@ class BuscaController
         ]);
     }
 
-    // GET /home — dados da página inicial
+    // GET /home
     public static function home()
     {
         require_once BASE_PATH . '/models/FilmeModel.php';
@@ -89,7 +86,6 @@ class BuscaController
         $sm = new SerieModel();
         $am = new AnimeModel();
 
-        // Continue assistindo (se autenticado)
         $continueWatching = [];
         $user = AuthMiddleware::attempt();
         if ($user) {
@@ -140,7 +136,7 @@ class ProgressoController
 class UsuarioController
 {
     // GET /usuario/lista
-    public static function lista(
+    public static function lista()
     {
         $user  = AuthMiddleware::require();
         $db    = Database::pdo();
@@ -150,7 +146,7 @@ class UsuarioController
     }
 
     // POST /usuario/lista
-    public static function addLista(
+    public static function addLista()
     {
         $user = AuthMiddleware::require();
         $body = Sanitizer::jsonBody();
@@ -166,7 +162,7 @@ class UsuarioController
     }
 
     // DELETE /usuario/lista/{tipo}/{id}
-    public static function removeLista(string $tipo, string $id
+    public static function removeLista(string $tipo, string $id)
     {
         $user = AuthMiddleware::require();
         Database::pdo()->prepare("DELETE FROM lista_usuario WHERE usuario_id=? AND conteudo_tipo=? AND conteudo_id=?")
@@ -175,7 +171,7 @@ class UsuarioController
     }
 
     // PUT /usuario/perfil
-    public static function updatePerfil(
+    public static function updatePerfil()
     {
         $user  = AuthMiddleware::require();
         $body  = Sanitizer::jsonBody();
@@ -189,7 +185,7 @@ class UsuarioController
 
     // ── Admin ─────────────────────────────────────────────────────
 
-    public static function adminIndex(
+    public static function adminIndex()
     {
         AuthMiddleware::requireAdmin();
         $page    = Sanitizer::getInt('page', 1, 1);
@@ -199,7 +195,7 @@ class UsuarioController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    public static function updateStatus(string $id
+    public static function updateStatus(string $id)
     {
         AuthMiddleware::requireSuperAdmin();
         $body   = Sanitizer::jsonBody();

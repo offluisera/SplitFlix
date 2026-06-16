@@ -3,8 +3,6 @@
  * Splitflix — AdminController (Dashboard)
  */
 
-
-
 require_once BASE_PATH . '/models/FilmeModel.php';
 require_once BASE_PATH . '/models/SerieModel.php';
 require_once BASE_PATH . '/models/AnimeModel.php';
@@ -20,7 +18,7 @@ use Middleware\AuthMiddleware;
 class AdminController
 {
     // GET /admin/dashboard
-    public static function dashboard(
+    public static function dashboard()
     {
         AuthMiddleware::requireAdmin();
 
@@ -49,7 +47,7 @@ class AdminController
     }
 
     // GET /admin/dashboard/grafico?dias=30
-    public static function graficoAcessos(
+    public static function graficoAcessos()
     {
         AuthMiddleware::requireAdmin();
         $dias   = Sanitizer::getInt('dias', 30, 7, 90);
@@ -65,7 +63,7 @@ class AdminController
 class AnuncioController
 {
     // GET /anuncios/{posicao}?tipo=filme
-    public static function byPosicao(string $posicao
+    public static function byPosicao(string $posicao)
     {
         $tipo  = Sanitizer::get('tipo', 'todos');
         $ads   = (new AnuncioModel())->byPosicao($posicao, $tipo);
@@ -73,7 +71,7 @@ class AnuncioController
     }
 
     // GET /admin/anuncios
-    public static function index(
+    public static function index()
     {
         AuthMiddleware::requireAdmin();
         $page    = Sanitizer::getInt('page', 1, 1);
@@ -83,7 +81,7 @@ class AnuncioController
     }
 
     // GET /admin/anuncios/{id}
-    public static function show(string $id
+    public static function show(string $id)
     {
         AuthMiddleware::requireAdmin();
         $model = new AnuncioModel();
@@ -93,7 +91,7 @@ class AnuncioController
     }
 
     // POST /admin/anuncios
-    public static function store(
+    public static function store()
     {
         $admin = AuthMiddleware::requireAdmin();
         $body  = Sanitizer::jsonBody();
@@ -110,7 +108,7 @@ class AnuncioController
     }
 
     // PUT /admin/anuncios/{id}
-    public static function update(string $id
+    public static function update(string $id)
     {
         AuthMiddleware::requireAdmin();
         $body = Sanitizer::jsonBody();
@@ -124,7 +122,7 @@ class AnuncioController
     }
 
     // DELETE /admin/anuncios/{id}
-    public static function destroy(string $id
+    public static function destroy(string $id)
     {
         AuthMiddleware::requireAdmin();
         (new AnuncioModel())->delete((int)$id);
@@ -132,7 +130,7 @@ class AnuncioController
     }
 
     // PATCH /admin/anuncios/{id}/toggle
-    public static function toggle(string $id
+    public static function toggle(string $id)
     {
         AuthMiddleware::requireAdmin();
         $result = (new AnuncioModel())->toggle((int)$id);

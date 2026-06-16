@@ -40,7 +40,8 @@ export function StarRating({ tipo, conteudoId, media, total, minhaNote, onRated 
       </div>
       {media !== undefined && (
         <p className="text-gray-400 text-sm">
-          <span className="text-yellow-400 font-bold">{media?.toFixed(1) ?? '—'}</span>
+          <span className="text-yellow-400 font-bold">{media != null ? Number(media).toFixed(1) : '—'}
+</span>
           {total ? ` · ${total} avaliações` : ''}
           {minhaNote ? ` · Sua nota: ${minhaNote}` : ''}
         </p>

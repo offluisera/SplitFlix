@@ -3,8 +3,6 @@
  * Splitflix — AuthController
  */
 
-
-
 require_once BASE_PATH . '/models/UsuarioModel.php';
 use Helpers\Response;
 use Helpers\JWT;
@@ -15,7 +13,7 @@ use Middleware\RateLimitMiddleware;
 class AuthController
 {
     // ── POST /auth/register ───────────────────────────────────────
-    public static function register(
+    public static function register()
     {
         $body = Sanitizer::jsonBody();
 
@@ -56,7 +54,7 @@ class AuthController
     }
 
     // ── POST /auth/login ──────────────────────────────────────────
-    public static function login(
+    public static function login()
     {
         $body  = Sanitizer::jsonBody();
         $email = Sanitizer::email($body['email'] ?? '');
@@ -65,7 +63,6 @@ class AuthController
 
         if (!$email || !$senha) Response::validationError(['credenciais' => 'E-mail e senha são obrigatórios.']);
 
-        // Rate limiting por e-mail + IP
         RateLimitMiddleware::checkLoginAttempts($email, $ip);
 
         $model = new UsuarioModel();
@@ -82,7 +79,6 @@ class AuthController
 
         RateLimitMiddleware::clearLoginAttempts($email, $ip);
 
-        // Re-hash se necessário (ex: cost upgrade)
         if (password_needs_rehash($user['senha_hash'], PASSWORD_BCRYPT, ['cost' => 12])) {
             $newHash = password_hash($senha, PASSWORD_BCRYPT, ['cost' => 12]);
             Database::pdo()->prepare("UPDATE usuarios SET senha_hash=? WHERE id=?")->execute([$newHash, $user['id']]);
@@ -98,7 +94,7 @@ class AuthController
     }
 
     // ── POST /auth/logout ─────────────────────────────────────────
-    public static function logout(
+    public static function logout()
     {
         $user = AuthMiddleware::attempt();
         if ($user) {
@@ -109,7 +105,7 @@ class AuthController
     }
 
     // ── POST /auth/refresh ────────────────────────────────────────
-    public static function refresh(
+    public static function refresh()
     {
         $body  = Sanitizer::jsonBody();
         $token = $body['refresh_token'] ?? '';
@@ -131,7 +127,7 @@ class AuthController
     }
 
     // ── GET /auth/me ──────────────────────────────────────────────
-    public static function me(
+    public static function me()
     {
         $payload = AuthMiddleware::require();
         $model   = new UsuarioModel();

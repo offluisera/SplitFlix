@@ -3,8 +3,6 @@
  * Splitflix — ComentarioController
  */
 
-
-
 require_once BASE_PATH . '/models/ComentarioModel.php';
 use Helpers\Response;
 use Helpers\Sanitizer;
@@ -14,7 +12,7 @@ use Middleware\RateLimitMiddleware;
 class ComentarioController
 {
     // GET /comentarios/{tipo}/{id}
-    public static function index(string $tipo, string $id
+    public static function index(string $tipo, string $id)
     {
         $allowed = ['filme','serie','anime','episodio'];
         if (!in_array($tipo, $allowed, true)) Response::error('Tipo inválido.', 400);
@@ -25,7 +23,7 @@ class ComentarioController
     }
 
     // POST /comentarios
-    public static function store(
+    public static function store()
     {
         $user = AuthMiddleware::require();
         $body = Sanitizer::jsonBody();
@@ -56,7 +54,7 @@ class ComentarioController
     }
 
     // DELETE /comentarios/{id}
-    public static function destroy(string $id
+    public static function destroy(string $id)
     {
         $user = AuthMiddleware::require();
         $ok   = (new ComentarioModel())->delete((int)$id, (int)$user['sub'], $user['papel']);
@@ -66,7 +64,7 @@ class ComentarioController
 
     // ── Admin ─────────────────────────────────────────────────────
 
-    public static function adminIndex(
+    public static function adminIndex()
     {
         AuthMiddleware::requireAdmin();
         $page    = Sanitizer::getInt('page', 1, 1);
@@ -76,14 +74,14 @@ class ComentarioController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    public static function aprovar(string $id
+    public static function aprovar(string $id)
     {
         AuthMiddleware::requireAdmin();
         (new ComentarioModel())->updateStatus((int)$id, 'aprovado');
         Response::success(null, 'Comentário aprovado.');
     }
 
-    public static function marcarSpam(string $id
+    public static function marcarSpam(string $id)
     {
         AuthMiddleware::requireAdmin();
         (new ComentarioModel())->updateStatus((int)$id, 'spam');

@@ -3,8 +3,6 @@
  * Splitflix — EpisodioController
  */
 
-
-
 require_once BASE_PATH . '/models/EpisodioModel.php';
 use Helpers\Response;
 use Helpers\Sanitizer;
@@ -12,25 +10,25 @@ use Middleware\AuthMiddleware;
 
 class EpisodioController
 {
-    public static function show(string $id
+    public static function show(string $id)
     {
         $ep = (new EpisodioModel())->findById((int)$id);
         if (!$ep) Response::notFound('Episódio não encontrado.');
         Response::success($ep);
     }
 
-    public static function byTemporada(string $id
+    public static function byTemporada(string $id)
     {
         Response::success((new EpisodioModel())->byTemporada((int)$id));
     }
 
-    public static function temporadasByCont(string $tipo, string $id
+    public static function temporadasByCont(string $tipo, string $id)
     {
         AuthMiddleware::requireAdmin();
         Response::success((new EpisodioModel())->getTemporadasAdmin((int)$id, $tipo));
     }
 
-    public static function storeTemporada(
+    public static function storeTemporada()
     {
         AuthMiddleware::requireAdmin();
         $body = Sanitizer::jsonBody();
@@ -41,21 +39,21 @@ class EpisodioController
         Response::success(['id'=>$id], 'Temporada criada!', 201);
     }
 
-    public static function updateTemporada(string $id
+    public static function updateTemporada(string $id)
     {
         AuthMiddleware::requireAdmin();
         (new EpisodioModel())->updateTemporada((int)$id, Sanitizer::jsonBody());
         Response::success(null, 'Temporada atualizada.');
     }
 
-    public static function destroyTemporada(string $id
+    public static function destroyTemporada(string $id)
     {
         AuthMiddleware::requireAdmin();
         (new EpisodioModel())->deleteTemporada((int)$id);
         Response::success(null, 'Temporada excluída.');
     }
 
-    public static function store(
+    public static function store()
     {
         AuthMiddleware::requireAdmin();
         $body = Sanitizer::jsonBody();
@@ -69,25 +67,25 @@ class EpisodioController
         Response::success(['id'=>$id], 'Episódio criado!', 201);
     }
 
-    public static function update(string $id
+    public static function update(string $id)
     {
         AuthMiddleware::requireAdmin();
         (new EpisodioModel())->update((int)$id, Sanitizer::jsonBody());
         Response::success(null, 'Episódio atualizado.');
     }
 
-    public static function destroy(string $id
+    public static function destroy(string $id)
     {
         AuthMiddleware::requireAdmin();
         (new EpisodioModel())->delete((int)$id);
         Response::success(null, 'Episódio excluído.');
     }
-}
 
     // Admin: lista todos os episodios (inclusive rascunhos)
-    public static function adminByTemporadaRoute($tempId)
+    public static function adminByTemporadaRoute(string $tempId)
     {
         AuthMiddleware::requireAdmin();
         $eps = (new EpisodioModel())->adminByTemporada((int)$tempId);
         Response::success($eps);
     }
+}

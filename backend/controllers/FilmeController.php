@@ -3,8 +3,6 @@
  * Splitflix — FilmeController
  */
 
-
-
 require_once BASE_PATH . '/models/FilmeModel.php';
 use Helpers\Response;
 use Helpers\Sanitizer;
@@ -12,8 +10,7 @@ use Middleware\AuthMiddleware;
 
 class FilmeController
 {
-    // ── GET /filmes ───────────────────────────────────────────────
-    public static function index(
+    public static function index()
     {
         $page    = Sanitizer::getInt('page', 1, 1);
         $perPage = Sanitizer::getInt('per_page', DEFAULT_PAGE_SIZE, 1, MAX_PAGE_SIZE);
@@ -26,18 +23,15 @@ class FilmeController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    // ── GET /filmes/{id} ──────────────────────────────────────────
-    public static function show(string $id
+    public static function show(string $id)
     {
         $model = new FilmeModel();
-        // Aceita slug ou ID numérico
         $filme = is_numeric($id) ? $model->adminFindById((int)$id) : $model->findBySlug($id);
         if (!$filme) Response::notFound('Filme não encontrado.');
         Response::success($filme);
     }
 
-    // ── GET /admin/filmes ─────────────────────────────────────────
-    public static function adminIndex(
+    public static function adminIndex()
     {
         AuthMiddleware::requireAdmin();
         $page    = Sanitizer::getInt('page', 1, 1);
@@ -47,8 +41,7 @@ class FilmeController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    // ── GET /admin/filmes/{id} ────────────────────────────────────
-    public static function adminShow(string $id
+    public static function adminShow(string $id)
     {
         AuthMiddleware::requireAdmin();
         $filme = (new FilmeModel())->adminFindById((int)$id);
@@ -56,8 +49,7 @@ class FilmeController
         Response::success($filme);
     }
 
-    // ── POST /admin/filmes ────────────────────────────────────────
-    public static function store(
+    public static function store()
     {
         $admin = AuthMiddleware::requireAdmin();
         $body  = Sanitizer::jsonBody();
@@ -68,8 +60,7 @@ class FilmeController
         Response::success(['id' => $id], 'Filme cadastrado com sucesso!', 201);
     }
 
-    // ── PUT /admin/filmes/{id} ────────────────────────────────────
-    public static function update(string $id
+    public static function update(string $id)
     {
         AuthMiddleware::requireAdmin();
         $body  = Sanitizer::jsonBody();
@@ -81,8 +72,7 @@ class FilmeController
         Response::success(null, 'Filme atualizado.');
     }
 
-    // ── DELETE /admin/filmes/{id} ─────────────────────────────────
-    public static function destroy(string $id
+    public static function destroy(string $id)
     {
         AuthMiddleware::requireSuperAdmin();
         $model = new FilmeModel();
@@ -139,7 +129,7 @@ require_once BASE_PATH . '/models/SerieModel.php';
 
 class SerieController
 {
-    public static function index(
+    public static function index()
     {
         $page    = Sanitizer::getInt('page', 1, 1);
         $perPage = Sanitizer::getInt('per_page', DEFAULT_PAGE_SIZE, 1, MAX_PAGE_SIZE);
@@ -147,7 +137,7 @@ class SerieController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    public static function show(string $id
+    public static function show(string $id)
     {
         $model = new SerieModel();
         $serie = is_numeric($id) ? $model->findById((int)$id) : $model->findBySlug($id);
@@ -155,7 +145,7 @@ class SerieController
         Response::success($serie);
     }
 
-    public static function adminIndex(
+    public static function adminIndex()
     {
         AuthMiddleware::requireAdmin();
         $page   = Sanitizer::getInt('page', 1, 1);
@@ -164,7 +154,7 @@ class SerieController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    public static function store(
+    public static function store()
     {
         $admin = AuthMiddleware::requireAdmin();
         $body  = Sanitizer::jsonBody();
@@ -175,7 +165,7 @@ class SerieController
         Response::success(['id'=>$id], 'Série cadastrada!', 201);
     }
 
-    public static function update(string $id
+    public static function update(string $id)
     {
         AuthMiddleware::requireAdmin();
         $model = new SerieModel();
@@ -184,7 +174,7 @@ class SerieController
         Response::success(null, 'Série atualizada.');
     }
 
-    public static function destroy(string $id
+    public static function destroy(string $id)
     {
         AuthMiddleware::requireSuperAdmin();
         (new SerieModel())->delete((int)$id);
@@ -200,7 +190,7 @@ require_once BASE_PATH . '/models/AnimeModel.php';
 
 class AnimeController
 {
-    public static function index(
+    public static function index()
     {
         $page    = Sanitizer::getInt('page', 1, 1);
         $perPage = Sanitizer::getInt('per_page', DEFAULT_PAGE_SIZE, 1, MAX_PAGE_SIZE);
@@ -208,7 +198,7 @@ class AnimeController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    public static function show(string $id
+    public static function show(string $id)
     {
         $model = new AnimeModel();
         $anime = is_numeric($id) ? $model->findById((int)$id) : $model->findBySlug($id);
@@ -216,7 +206,7 @@ class AnimeController
         Response::success($anime);
     }
 
-    public static function adminIndex(
+    public static function adminIndex()
     {
         AuthMiddleware::requireAdmin();
         $page    = Sanitizer::getInt('page', 1, 1);
@@ -225,7 +215,7 @@ class AnimeController
         Response::paginated($result['items'], $result['total'], $result['page'], $result['perPage']);
     }
 
-    public static function store(
+    public static function store()
     {
         $admin = AuthMiddleware::requireAdmin();
         $body  = Sanitizer::jsonBody();
@@ -235,7 +225,7 @@ class AnimeController
         Response::success(['id'=>$id], 'Anime cadastrado!', 201);
     }
 
-    public static function update(string $id
+    public static function update(string $id)
     {
         AuthMiddleware::requireAdmin();
         $model = new AnimeModel();
@@ -244,7 +234,7 @@ class AnimeController
         Response::success(null, 'Anime atualizado.');
     }
 
-    public static function destroy(string $id
+    public static function destroy(string $id)
     {
         AuthMiddleware::requireSuperAdmin();
         (new AnimeModel())->delete((int)$id);
