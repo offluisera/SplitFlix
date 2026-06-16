@@ -1,0 +1,158 @@
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { filmeService } from '@/services'
+import ImdbImporter from '@/components/forms/ImdbImporter'
+import toast from 'react-hot-toast'
+
+const STATUS = ['rascunho', 'publicado', 'arquivado']
+
+export default function FilmeForm() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const isEdit = Boolean(id)
+
+  const [form, setForm] = useState<Record<string, unknown>>({
+    titulo: '', titulo_original: '', sinopse: '', ano: '', duracao_min: '',
+    classificacao: '', nota_imdb: '', diretor: '', poster_url: '', backdrop_url: '',
+    trailer_youtube: '', embed_dailymotion: '', status: 'rascunho', destaque: false, em_alta: false,
+  })
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(isEdit)
+
+  useEffect(() => {
+    if (!isEdit || !id) return
+    filmeService.adminShow(Number(id)).then(({ data }) => {
+      setForm({ ...data.data as Record<string,unknown> })
+    }).finally(() => setLoading(false))
+  }, [id, isEdit])
+
+  const set = (k: string, v: unknown) => setForm(p => ({ ...p, [k]: v }))
+
+  const handleImport = (data: Record<string, unknown>) => {
+    setForm(prev => ({ ...prev, ...data, embed_dailymotion: prev.embed_dailymotion || '' }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.titulo) { toast.error('Título obrigatório.'); return }
+    setSaving(true)
+    try {
+      if (isEdit) {
+        await filmeService.update(Number(id), form)
+        toast.success('Filme atualizado!')
+      } else {
+        const { data } = await filmeService.create(form)
+        toast.success('Filme cadastrado!')
+        navigate(`/admin/filmes/${data.data.id}/editar`)
+      }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(msg || 'Erro ao salvar.')
+    }
+    setSaving(false)
+  }
+
+  if (loading) return <div className="h-96 skeleton rounded-xl" />
+
+  return (
+    <>
+      <Helmet><title>{isEdit ? 'Editar' : 'Novo'} Filme — Admin</title></Helmet>
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-white">{isEdit ? 'Editar Filme' : 'Novo Filme'}</h1>
+          <button type="button" onClick={() => navigate('/admin/filmes')} className="btn-ghost text-sm">← Voltar</button>
+        </div>
+
+        <ImdbImporter onImport={handleImport} tipo="filme" />
+
+        <div className="card p-6 space-y-5">
+          <h2 className="text-white font-semibold border-b border-dark-600 pb-3">Informações</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="md:col-span-2">
+              <label className="label">Título (PT-BR) *</label>
+              <input value={form.titulo as string || ''} onChange={e => set('titulo', e.target.value)} required className="input" />
+            </div>
+            <div>
+              <label className="label">Título Original</label>
+              <input value={form.titulo_original as string || ''} onChange={e => set('titulo_original', e.target.value)} className="input" />
+            </div>
+            <div>
+              <label className="label">Diretor</label>
+              <input value={form.diretor as string || ''} onChange={e => set('diretor', e.target.value)} className="input" />
+            </div>
+            <div>
+              <label className="label">Ano</label>
+              <input type="number" value={form.ano as number || ''} onChange={e => set('ano', Number(e.target.value))} className="input" min={1900} max={2100} />
+            </div>
+            <div>
+              <label className="label">Duração (min)</label>
+              <input type="number" value={form.duracao_min as number || ''} onChange={e => set('duracao_min', Number(e.target.value))} className="input" />
+            </div>
+            <div>
+              <label className="label">Nota IMDb (0–10)</label>
+              <input type="number" step="0.1" min={0} max={10} value={form.nota_imdb as number || ''} onChange={e => set('nota_imdb', Number(e.target.value))} className="input" />
+            </div>
+            <div>
+              <label className="label">Classificação</label>
+              <input value={form.classificacao as string || ''} onChange={e => set('classificacao', e.target.value)} className="input" placeholder="14, 16, 18, Livre…" />
+            </div>
+          </div>
+          <div>
+            <label className="label">Sinopse (PT-BR)</label>
+            <textarea value={form.sinopse as string || ''} onChange={e => set('sinopse', e.target.value)} rows={5} className="input resize-none" />
+          </div>
+        </div>
+
+        <div className="card p-6 space-y-5">
+          <h2 className="text-white font-semibold border-b border-dark-600 pb-3">Mídia</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="label">Poster URL</label>
+              <input value={form.poster_url as string || ''} onChange={e => set('poster_url', e.target.value)} className="input" />
+              {form.poster_url && <img src={form.poster_url as string} alt="" className="mt-2 h-28 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none' }} />}
+            </div>
+            <div>
+              <label className="label">Backdrop URL</label>
+              <input value={form.backdrop_url as string || ''} onChange={e => set('backdrop_url', e.target.value)} className="input" />
+            </div>
+            <div>
+              <label className="label">YouTube Trailer ID</label>
+              <input value={form.trailer_youtube as string || ''} onChange={e => set('trailer_youtube', e.target.value)} className="input font-mono" placeholder="dQw4w9WgXcQ" />
+            </div>
+            <div>
+              <label className="label">Embed Dailymotion</label>
+              <input value={form.embed_dailymotion as string || ''} onChange={e => set('embed_dailymotion', e.target.value)} className="input font-mono" placeholder="https://www.dailymotion.com/embed/video/…" />
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-5">
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="label">Status</label>
+              <select value={form.status as string} onChange={e => set('status', e.target.value)} className="input">
+                {STATUS.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+              </select>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer pt-6">
+              <input type="checkbox" checked={!!form.destaque} onChange={e => set('destaque', e.target.checked)} className="w-4 h-4 accent-brand-600" />
+              <span className="text-gray-300 text-sm">Destaque (Hero)</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer pt-6">
+              <input type="checkbox" checked={!!form.em_alta} onChange={e => set('em_alta', e.target.checked)} className="w-4 h-4 accent-brand-600" />
+              <span className="text-gray-300 text-sm">Em Alta</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <button type="submit" disabled={saving} className="btn-primary">
+            {saving ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Cadastrar filme'}
+          </button>
+          <button type="button" onClick={() => navigate('/admin/filmes')} className="btn-ghost">Cancelar</button>
+        </div>
+      </form>
+    </>
+  )
+}

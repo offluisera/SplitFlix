@@ -1,0 +1,28 @@
+Options -Indexes
+ServerSignature Off
+
+# ── URL Rewrite ───────────────────────────────────────────────────
+RewriteEngine On
+
+# Permite acesso direto a arquivos e pastas existentes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# ── Security Headers ──────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always unset X-Powered-By
+</IfModule>
+
+# ── Bloquear acesso direto a arquivos sensíveis ───────────────────
+<FilesMatch "\.(env|log|sql|lock|md|yml|yaml|sh|bak|cfg)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ── Charset ───────────────────────────────────────────────────────
+AddDefaultCharset UTF-8
