@@ -52,6 +52,8 @@ export default function Navbar() {
     navigate(`/${tipo}/${item.slug}`)
   }
 
+  const initials = user?.nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase() || '?'
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled ? 'bg-dark-950/98 backdrop-blur-md shadow-lg shadow-black/50 border-b border-dark-800' : 'bg-gradient-to-b from-black/70 to-transparent'
@@ -129,23 +131,41 @@ export default function Navbar() {
             <div className="relative">
               <button onClick={() => setShowUser(!showUser)}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-sm font-bold text-white">
-                  {user?.nome.charAt(0).toUpperCase()}
-                </div>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.nome}
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-brand-600/50" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xs font-bold text-white">
+                    {initials}
+                  </div>
+                )}
               </button>
               {showUser && (
-                <div className="absolute right-0 mt-2 w-48 bg-dark-800 border border-dark-700 rounded-xl shadow-2xl py-1 z-50">
-                  <p className="px-4 py-2.5 text-sm text-gray-400 border-b border-dark-700 truncate">{user?.nome}</p>
+                <div className="absolute right-0 mt-2 w-52 bg-dark-800 border border-dark-700 rounded-xl shadow-2xl py-1 z-50">
+                  {/* Header do menu: nome + email */}
+                  <div className="px-4 py-3 border-b border-dark-700">
+                    <p className="text-white text-sm font-semibold truncate">{user?.nome}</p>
+                    <p className="text-gray-500 text-xs truncate">{user?.email}</p>
+                  </div>
+
+                  <Link to="/perfil" onClick={() => setShowUser(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors">
+                    <span>👤</span> Meu Perfil
+                  </Link>
+
                   {isAdmin && (
                     <Link to="/admin" onClick={() => setShowUser(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors">
                       <span>⚙️</span> Painel Admin
                     </Link>
                   )}
-                  <button onClick={() => { logout(); setShowUser(false) }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-dark-700 transition-colors">
-                    <span>→</span> Sair
-                  </button>
+
+                  <div className="border-t border-dark-700 mt-1 pt-1">
+                    <button onClick={() => { logout(); setShowUser(false) }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-dark-700 transition-colors">
+                      <span>→</span> Sair
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

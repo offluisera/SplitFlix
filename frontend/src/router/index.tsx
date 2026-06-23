@@ -21,6 +21,7 @@ const EpisodioPage = lazy(() => import('@/pages/EpisodioPage'))
 const BuscaPage    = lazy(() => import('@/pages/BuscaPage'))
 const LoginPage    = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
+const ProfilePage  = lazy(() => import('@/pages/ProfilePage'))
 const NotFound     = lazy(() => import('@/pages/NotFound'))
 
 // ── Admin pages ───────────────────────────────────────────────────
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
       { path: 'busca',                element: wrap(BuscaPage) },
       { path: 'login',                element: wrap(LoginPage) },
       { path: 'cadastro',             element: wrap(RegisterPage) },
+      { path: 'perfil',               element: wrap(ProfilePage) },
     ],
   },
   {

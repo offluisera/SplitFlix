@@ -13,6 +13,7 @@ interface AuthState {
   register: (nome: string, email: string, senha: string) => Promise<void>
   logout: () => Promise<void>
   setTokens: (access: string, refresh: string, user: Usuario) => void
+  updateUser: (user: Usuario) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,6 +30,10 @@ export const useAuthStore = create<AuthState>()(
         localStorage.setItem('refresh_token', refresh)
         set({ user, accessToken: access, refreshToken: refresh,
               isAuthenticated: true, isAdmin: ['admin','moderador'].includes(user.papel) })
+      },
+
+      updateUser(user) {
+        set({ user, isAdmin: ['admin','moderador'].includes(user.papel) })
       },
 
       async login(email, senha) {
